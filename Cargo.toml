@@ -1,0 +1,19 @@
+[package]
+name = "media-organizer"
+version = "1.0.0"
+authors = ["Alejandro Do Nascimento Mora"]
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+kamadak-exif = "0.5.4"
+regex = "1"
+viperus = "0.1.10"
+clap = "2.34.0"
+color-eyre = "0.5.11"
+directories = "4.0.1"
+
+[dev-dependencies]
+tempfile = "3"
+assert_cmd = "2.0.2"
