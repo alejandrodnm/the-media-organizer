@@ -1,0 +1,3 @@
+media_source_dir = "media/src"
+photos_destination_dir = "photos/dst"
+videos_destination_dir = "videos/dst"
