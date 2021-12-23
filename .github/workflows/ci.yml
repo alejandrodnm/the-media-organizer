@@ -1,0 +1,27 @@
+name: Media Organize CI for build
+
+on:
+  push:
+    branches:
+    - main
+  pull_request:
+    branches:
+    - main
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Build
+      run: cargo build --verbose
+    - name: Store the executable artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: media-organizer
+        path: target/debug/media-organizer
+        if-no-files-found: warn
+        retention-days: 30
