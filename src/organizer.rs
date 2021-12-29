@@ -5,22 +5,41 @@ use color_eyre::eyre::{eyre, Result, WrapErr};
 use std::fs;
 use std::path::PathBuf;
 
+/// Handler of media files. It determines what and how to organize.
 pub trait MediaTypeOrganizer {
+    /// If the media file should be organize.
     fn should_organize(&self, item: &PathBuf) -> bool;
+    /// Destination directory where the media files should be moved to.
     fn destination_dir(&self, item: &PathBuf) -> Result<PathBuf>;
 }
 
+/// Organizes files by apply the contained [`MediaTypeOrganizers`](self::MediaTypeOrganizers).
 pub struct Organizer {
     media_type_organizers: Vec<Box<dyn MediaTypeOrganizer>>,
 }
 
 impl Organizer {
+    /// Creates a new organizer with the given [`MediaTypeOrganizers`](self::MediaTypeOrganizers).
     pub fn new(media_type_organizers: Vec<Box<dyn MediaTypeOrganizer>>) -> Organizer {
         Organizer {
             media_type_organizers,
         }
     }
 
+    /// Organize all the media files in the given media source
+    /// and its subdirectories according to the
+    /// [`MediaTypeOrganizers`](self::MediaTypeOrganizers).
+    ///
+    /// For each file it goes over all the registered
+    /// [`MediaTypeOrganizers`](self::MediaTypeOrganizers) to
+    /// determine if the file is supported and should be organize.
+    /// If the file should be organize it gets the new destination
+    /// path and moves the file to it.
+    ///
+    /// The files are handled by the first
+    /// [`MediaTypeOrganizers`](self::MediaTypeOrganizers)
+    /// that returns a new destination directory and for which the move
+    /// operation successfully executes.
     pub fn organize(&self, media_src: PathBuf) -> Result<()> {
         for file in FilesIter::new(media_src) {
             for media_type_organizer in &self.media_type_organizers {
@@ -38,13 +57,14 @@ impl Organizer {
                     }
                 };
 
-                if let Err(e) = Organizer::move_file(&file, &dst_dir).wrap_err_with(|| {
+                match Organizer::move_file(&file, &dst_dir).wrap_err_with(|| {
                     format!(
                         "failed to move file {:?} to destination dir {:?}",
                         file, dst_dir
                     )
                 }) {
-                    eprintln!("{:?}", e);
+                    Ok(()) => break,
+                    Err(e) => eprintln!("{:?}", e),
                 }
             }
         }

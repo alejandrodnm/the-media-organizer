@@ -3,7 +3,7 @@ use ::media_organizer::{MediaTypeOrganizer, Organizer, PhotoOrganizer, VideoOrga
 use color_eyre::eyre::{bail, Result, WrapErr};
 use std::env;
 
-// Loads the config and runs the organizers
+/// Loads the config and runs the organizers
 fn main() -> Result<(), color_eyre::Report> {
     color_eyre::install()?;
 
