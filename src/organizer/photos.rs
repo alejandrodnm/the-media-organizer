@@ -6,6 +6,25 @@ use std::fs;
 use std::io;
 use std::path::PathBuf;
 
+/// For supported photos, it generates the destination path usinga 2
+/// level directory structure where the first level is the year and
+/// the second level the month. For example:
+///
+/// ├── my-photos
+/// │   ├── 2019
+/// │   │  └── 01 - January
+/// │   │     └── camera-001.jpg
+/// │   └── 2020
+/// │      └── 04 - April
+/// │         └── IMG-20200407-WA0004.jpg
+///
+/// The date is taken from the exif of the
+/// photo, if this fails or the image doesn't have exif, it tries to
+/// get the date from the name. Taking the date from the name is just a
+/// regex over the format that WhatsApp uses, which is
+/// `IMG-YYYYMMDD-WAXXXX.jpg`.
+///
+/// Only the following formats are organized `jpeg`, `jpg` and `JPG`.
 pub struct PhotoOrganizer {
     dst_dir: PathBuf,
     date_from_filename_regex: Regex,
