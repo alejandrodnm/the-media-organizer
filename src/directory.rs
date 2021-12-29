@@ -1,6 +1,9 @@
 use std::fs;
 use std::path::PathBuf;
 
+/// Iterator over the files and subdirecotires of a given root
+/// directory. It uses a breath depth approach. It doesn't follow
+/// symlinks.
 pub struct FilesIter {
     dirs: Vec<PathBuf>,
     files: Vec<PathBuf>,
