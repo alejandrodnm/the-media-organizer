@@ -1,5 +1,8 @@
 use color_eyre::eyre::{eyre, Result};
 
+/// A simple date structure that only contains the year and month.
+/// The components can be returned as strings. In the case of the
+/// months they are returned as `MM - Month Name`.
 #[derive(Debug)]
 pub struct Date {
     year: u16,
