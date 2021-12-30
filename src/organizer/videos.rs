@@ -4,6 +4,10 @@ use color_eyre::eyre::{eyre, Result, WrapErr};
 use regex::Regex;
 use std::path::PathBuf;
 
+/// It organizes videos in directories by year. The year is taken from
+/// the file name using the regex `^(?:VID[-_])?(\d{4})(\d{2})\d{2}[_-].+\.mp4$`,
+/// which basically translate to `VID-YYYYMMDD-whatever.mp4` where
+/// `VID-` is optional and `-` can be changed to `_`.
 pub struct VideoOrganizer {
     dst_dir: PathBuf,
     date_from_filename_regex: Regex,
