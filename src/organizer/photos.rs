@@ -4,7 +4,7 @@ use color_eyre::eyre::{eyre, Result, WrapErr};
 use regex::Regex;
 use std::fs;
 use std::io;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 /// For supported photos, it generates the destination path usinga 2
 /// level directory structure where the first level is the year and
@@ -40,7 +40,7 @@ impl PhotoOrganizer {
         }
     }
 
-    fn get_date(&self, photo: &PathBuf) -> Result<Date> {
+    fn get_date(&self, photo: &Path) -> Result<Date> {
         let exif_date =
             PhotoOrganizer::date_from_exif(photo).wrap_err("failed to get date from exif");
         if exif_date.is_ok() {
@@ -52,7 +52,7 @@ impl PhotoOrganizer {
             .wrap_err(exif_date.unwrap_err())
     }
 
-    fn date_from_filename(&self, photo: &PathBuf) -> Result<Date> {
+    fn date_from_filename(&self, photo: &Path) -> Result<Date> {
         let file_name = photo
             .file_name()
             .ok_or_else(|| eyre!("failed to retrieve photo filename"))?;
@@ -60,7 +60,7 @@ impl PhotoOrganizer {
         let captures = self
             .date_from_filename_regex
             .captures(
-                &file_name
+                file_name
                     .to_str()
                     .ok_or_else(|| eyre!("failed to get file name as string"))?,
             )
@@ -76,7 +76,7 @@ impl PhotoOrganizer {
         Date::new(year, month)
     }
 
-    fn date_from_exif(photo: &PathBuf) -> Result<Date> {
+    fn date_from_exif(photo: &Path) -> Result<Date> {
         let file = fs::File::open(photo).wrap_err("failed to open file")?;
         let mut bufreader = io::BufReader::new(&file);
         let exifreader = exif::Reader::new();
@@ -101,12 +101,12 @@ impl PhotoOrganizer {
                 return true;
             }
         }
-        return false;
+        false
     }
 }
 
 impl MediaTypeOrganizer for PhotoOrganizer {
-    fn should_organize(&self, item: &PathBuf) -> bool {
+    fn should_organize(&self, item: &Path) -> bool {
         let extension = item.extension().and_then(|e| e.to_str());
         match extension {
             Some(e) => PhotoOrganizer::is_supported(e),
@@ -114,12 +114,12 @@ impl MediaTypeOrganizer for PhotoOrganizer {
         }
     }
 
-    fn destination_dir(&self, item: &PathBuf) -> Result<PathBuf> {
-        let photo_date = self.get_date(&item)?;
-        return Ok(self
+    fn destination_dir(&self, item: &Path) -> Result<PathBuf> {
+        let photo_date = self.get_date(item)?;
+        Ok(self
             .dst_dir
             .join(photo_date.get_year())
-            .join(photo_date.get_month()));
+            .join(photo_date.get_month()))
     }
 }
 

@@ -11,14 +11,14 @@ pub struct Date {
 
 impl Date {
     pub fn new(year: u16, month: u8) -> Result<Date> {
-        if month < 1 || month > 12 {
+        if !(1..=12).contains(&month) {
             return Err(eyre!(
                 "invalid month, should be between 1 and 12 got {}",
                 month
             ));
         }
 
-        if year < 1839 || year > 3000 {
+        if !(1839..=3000).contains(&year) {
             return Err(eyre!(
                 "invalid year, should be between 1839 and 3000 got {}",
                 year

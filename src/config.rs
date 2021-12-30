@@ -1,4 +1,3 @@
-use clap;
 use color_eyre::eyre::{bail, eyre, Result, WrapErr};
 use directories::ProjectDirs;
 use std::ffi::OsString;

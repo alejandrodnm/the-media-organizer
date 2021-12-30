@@ -3,14 +3,14 @@ pub mod videos;
 use crate::directory::FilesIter;
 use color_eyre::eyre::{eyre, Result, WrapErr};
 use std::fs;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 /// Handler of media files. It determines what and how to organize.
 pub trait MediaTypeOrganizer {
     /// If the media file should be organize.
-    fn should_organize(&self, item: &PathBuf) -> bool;
+    fn should_organize(&self, item: &Path) -> bool;
     /// Destination directory where the media files should be moved to.
-    fn destination_dir(&self, item: &PathBuf) -> Result<PathBuf>;
+    fn destination_dir(&self, item: &Path) -> Result<PathBuf>;
 }
 
 /// Organizes files by apply the contained [`MediaTypeOrganizers`](self::MediaTypeOrganizers).
@@ -71,7 +71,7 @@ impl Organizer {
         Ok(())
     }
 
-    fn move_file(file: &PathBuf, dst_dir: &PathBuf) -> Result<()> {
+    fn move_file(file: &Path, dst_dir: &Path) -> Result<()> {
         if !dst_dir.is_dir() {
             fs::create_dir_all(&dst_dir).wrap_err("failed to create destination dir")?;
         }
