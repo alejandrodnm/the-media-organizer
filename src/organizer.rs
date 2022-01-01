@@ -146,7 +146,7 @@ mod tests {
             .path()
             .join("2020")
             .join("04 - April")
-            .join("IMG-20200407-WA0004.JPG")
+            .join("IMG-20200407-WA0004.jpg")
             .is_file());
 
         assert!(dst
