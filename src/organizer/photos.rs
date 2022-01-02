@@ -36,7 +36,10 @@ impl PhotoOrganizer {
     pub fn new(dst_dir: PathBuf) -> PhotoOrganizer {
         PhotoOrganizer {
             dst_dir,
-            date_from_filename_regex: Regex::new(r"^IMG\-(\d{4})(\d{2})\d{2}\-WA\d+\..*$").unwrap(),
+            date_from_filename_regex: Regex::new(
+                r"^IMG[-_](\d{4})(\d{2})\d{2}[-_](WA)?\d+\.(jpeg|jpg|JPG)$",
+            )
+            .unwrap(),
         }
     }
 
