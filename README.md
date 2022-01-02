@@ -52,8 +52,20 @@ item and the process will continue with the next one.
 
 ## Installing
 
-Publishing to be able to install with cargo is WIP. Just clone the repo and
-execute:
+You can install via cargo with:
+
+```
+cargo install the-media-organizer
+```
+
+Then just run:
+
+```
+the-media-organizer -h
+the-media-organizer --media-src /media-to-sort --photos-dst /my-photos --videos-dst /my-videos
+```
+
+You can also clone the repo and run it with cargo:
 
 ```
 the-media-organizer $ cargo run -- -h
