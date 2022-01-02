@@ -1,5 +1,5 @@
 mod config;
-use ::media_organizer::{MediaTypeOrganizer, Organizer, PhotoOrganizer, VideoOrganizer};
+use ::the_media_organizer::{MediaTypeOrganizer, Organizer, PhotoOrganizer, VideoOrganizer};
 use color_eyre::eyre::{bail, Result, WrapErr};
 use std::env;
 

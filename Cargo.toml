@@ -1,5 +1,5 @@
 [package]
-name = "media-organizer"
+name = "the-media-organizer"
 version = "1.0.0"
 authors = ["Alejandro Do Nascimento Mora"]
 edition = "2021"

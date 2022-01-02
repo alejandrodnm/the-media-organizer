@@ -21,7 +21,7 @@ $ tree /media-to-sort
 By running this project like:
 
 ```
-./media-organizer --media-src /media-to-sort --photos-dst /my-photos --videos-dst /my-videos
+./the-media-organizer --media-src /media-to-sort --photos-dst /my-photos --videos-dst /my-videos
 ```
 
 The files will be sorted as:
@@ -56,8 +56,8 @@ Publishing to be able to install with cargo is WIP. Just clone the repo and
 execute:
 
 ```
-media-organizer $ cargo run -- -h
-media-organizer $ cargo run -- --media-src /media-to-sort --photos-dst /my-photos --videos-dst /my-videos
+the-media-organizer $ cargo run -- -h
+the-media-organizer $ cargo run -- --media-src /media-to-sort --photos-dst /my-photos --videos-dst /my-videos
 ```
 
 ## How do I use it and why?
@@ -111,10 +111,10 @@ photos or videos destination directories.
 Options can be passed via command line arguments:
 
 ```
-./media-organizer -h
+./the-media-organizer -h
 
 USAGE:
-    media-organizer [FLAGS] [OPTIONS]
+    the-media-organizer [FLAGS] [OPTIONS]
 
 FLAGS:
     -h, --help                           Prints help information
@@ -134,13 +134,13 @@ OPTIONS:
 For example:
 
 ```
-./media-organizer --media-src /media-to-sort --photos-dst /my-photos --videos-dst /my-videos
+./the-media-organizer --media-src /media-to-sort --photos-dst /my-photos --videos-dst /my-videos
 ```
 
 Or using a TOML configuration file:
 
 ```
-./media-organizer -c my-config.toml
+./the-media-organizer -c my-config.toml
 ```
 
 Where `my-config.toml` is:
