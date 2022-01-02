@@ -21,8 +21,8 @@ use std::path::{Path, PathBuf};
 /// The date is taken from the exif of the
 /// photo, if this fails or the image doesn't have exif, it tries to
 /// get the date from the name. Taking the date from the name is just a
-/// regex over the format that WhatsApp uses, which is
-/// `IMG-YYYYMMDD-WAXXXX.jpg`.
+/// regex over the format that WhatsApp and cameras use, which is
+/// `IMG-YYYYMMDD-WAXXXX.jpg` or `IMG_YYYYMMDD_XXXXX.jpg`.
 ///
 /// Only the following formats are organized `jpeg`, `jpg` and `JPG`.
 pub struct PhotoOrganizer {
