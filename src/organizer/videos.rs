@@ -2,8 +2,12 @@ use super::MediaTypeOrganizer;
 use crate::date::Date;
 use color_eyre::eyre::{eyre, Result, WrapErr};
 use regex::Regex;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
+/// It organizes videos in directories by year. The year is taken from
+/// the file name using the regex `^(?:VID[-_])?(\d{4})(\d{2})\d{2}[_-].+\.mp4$`,
+/// which basically translate to `VID-YYYYMMDD-whatever.mp4` where
+/// `VID-` is optional and `-` can be changed to `_`.
 pub struct VideoOrganizer {
     dst_dir: PathBuf,
     date_from_filename_regex: Regex,
@@ -20,7 +24,7 @@ impl VideoOrganizer {
         }
     }
 
-    fn get_date(&self, video: &PathBuf) -> Result<Date> {
+    fn get_date(&self, video: &Path) -> Result<Date> {
         let file_name = video
             .file_name()
             .ok_or_else(|| eyre!("failed to read file name"))?
@@ -29,7 +33,7 @@ impl VideoOrganizer {
 
         let captures = self
             .date_from_filename_regex
-            .captures(&file_name)
+            .captures(file_name)
             .ok_or_else(|| eyre!("file name doesn't contain date in the format YYYYMMDD"))?;
         let year: u16 = match captures.get(1) {
             Some(y) => y.as_str().parse().unwrap(),
@@ -48,12 +52,12 @@ impl VideoOrganizer {
                 return true;
             }
         }
-        return false;
+        false
     }
 }
 
 impl MediaTypeOrganizer for VideoOrganizer {
-    fn should_organize(&self, item: &PathBuf) -> bool {
+    fn should_organize(&self, item: &Path) -> bool {
         let extension = item.extension().and_then(|e| e.to_str());
         match extension {
             Some(e) => VideoOrganizer::is_supported(e),
@@ -61,11 +65,11 @@ impl MediaTypeOrganizer for VideoOrganizer {
         }
     }
 
-    fn destination_dir(&self, item: &PathBuf) -> Result<PathBuf> {
+    fn destination_dir(&self, item: &Path) -> Result<PathBuf> {
         let video_date = self
-            .get_date(&item)
+            .get_date(item)
             .wrap_err("failed to generate destination dir")?;
-        return Ok(self.dst_dir.join(video_date.get_year()));
+        Ok(self.dst_dir.join(video_date.get_year()))
     }
 }
 

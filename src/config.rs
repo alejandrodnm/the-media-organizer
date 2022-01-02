@@ -1,10 +1,86 @@
-use clap;
 use color_eyre::eyre::{bail, eyre, Result, WrapErr};
 use directories::ProjectDirs;
 use std::ffi::OsString;
 use std::path::PathBuf;
 use viperus::{Format, Viperus};
 
+/// Loads the configuration options.
+///
+/// The configuration can be set via command line arguments or via
+/// config file using the TOML format. The command line arguments have
+/// precedence over the configuration file in cases where both are
+/// specified.
+///
+/// The available configuration options are:
+///
+/// - Config file: file to load configuration from.
+///     - cmd line long: --config-file
+///     - cmd line short: -c
+///   Defaults to:
+///     - Linux: /home/ainara/.config/media-organizer/config.toml
+///     - Windows: C:\\Users\\Ainara\\AppData\\Roaming\\adn\\media-organizer\\config\\config.toml
+///     - Mac: /Users/Ainara/Library/Application Support/dev.adn.media-organizer/config.toml",
+/// - Media source: Source directory with media files to organize.
+///     - cmd line long: --media-src
+///     - cmd short: -m
+///     - toml: media_src
+/// - Photos destination: Directory where photos will be moved and organized.
+///     - cmd line long: --photos-dst
+///     - cmd short: -p
+///     - toml: photos_dst
+/// - Videos destination: Directory where videos will be moved and organized.
+///     - cmd line long: --videos-dst
+///     - cmd short: -v
+///     - toml: videos_dst
+/// - No load default config file: Do not load the config file from the default location.
+///     - cmd line long: --no-load-default-config-file
+pub fn get_config<I, T>(cmd_args: I) -> Result<Config>
+where
+    I: IntoIterator<Item = T>,
+    T: Into<OsString> + Clone,
+{
+    let mut v = Viperus::new();
+    let should_load_default_config_file = load_claps(&mut v, cmd_args)
+        .wrap_err_with(|| eyre!("failed to load command line arguments"))?;
+
+    let config_file_loaded = match v.get::<String>("config_file") {
+        Some(config_file) => {
+            if let Err(e) = v.load_file(&config_file, Format::TOML) {
+                bail!("failed to load config file '{}': {}", config_file, e);
+            }
+            true
+        }
+        None => false,
+    };
+
+    if !config_file_loaded && should_load_default_config_file {
+        if let Some(config_file) = get_default_config_file() {
+            if let Err(e) = v.load_file(&config_file, Format::TOML) {
+                bail!("failed to load config file '{}': {}", config_file, e);
+            }
+        }
+    }
+
+    let mut config_builder = match v.get::<String>("media_src") {
+        Some(dir) => ConfigBuilder::new(dir),
+        None => bail!("media source is required"),
+    };
+
+    config_builder = match v.get::<String>("photos_dst") {
+        Some(dir) => config_builder.with_photos_dst(dir),
+        None => config_builder,
+    };
+
+    config_builder = match v.get::<String>("videos_dst") {
+        Some(dir) => config_builder.with_videos_dst(dir),
+        None => config_builder,
+    };
+
+    config_builder.build()
+}
+
+/// Consolidates the configuration of both command line arguments and
+/// the what's specified in the configuration file.
 #[derive(Debug)]
 pub struct Config {
     pub media_src: PathBuf,
@@ -13,6 +89,17 @@ pub struct Config {
 }
 
 impl Config {
+    /// Creates a new Config object. It validates that the given path point
+    /// to existing directories and that at least one of photos_dst_str or
+    /// videos_dst_str are not empty.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// let valid_dir = PathBuf::from(file!()).parent().unwrap().to_string();
+    /// let config = Config::new(valid_dir, valid_dir, valid_dir);
+    /// assert!(config.is_ok());
+    /// ```
     fn new(
         media_src_str: String,
         photos_dst_str: String,
@@ -106,51 +193,6 @@ fn get_default_config_file() -> Option<String> {
     config_file.to_str().map(|s| s.to_owned())
 }
 
-pub fn get_config<I, T>(cmd_args: I) -> Result<Config>
-where
-    I: IntoIterator<Item = T>,
-    T: Into<OsString> + Clone,
-{
-    let mut v = Viperus::new();
-    let should_load_default_config_file = load_claps(&mut v, cmd_args)
-        .wrap_err_with(|| eyre!("failed to load command line arguments"))?;
-
-    let config_file_loaded = match v.get::<String>("config_file") {
-        Some(config_file) => {
-            if let Err(e) = v.load_file(&config_file, Format::TOML) {
-                bail!("failed to load config file '{}': {}", config_file, e);
-            }
-            true
-        }
-        None => false,
-    };
-
-    if !config_file_loaded && should_load_default_config_file {
-        if let Some(config_file) = get_default_config_file() {
-            if let Err(e) = v.load_file(&config_file, Format::TOML) {
-                bail!("failed to load config file '{}': {}", config_file, e);
-            }
-        }
-    }
-
-    let mut config_builder = match v.get::<String>("media_src") {
-        Some(dir) => ConfigBuilder::new(dir),
-        None => bail!("media source is required"),
-    };
-
-    config_builder = match v.get::<String>("photos_dst") {
-        Some(dir) => config_builder.with_photos_dst(dir),
-        None => config_builder,
-    };
-
-    config_builder = match v.get::<String>("videos_dst") {
-        Some(dir) => config_builder.with_videos_dst(dir),
-        None => config_builder,
-    };
-
-    config_builder.build()
-}
-
 fn load_claps<I, T>(v: &mut Viperus, cmd_args: I) -> Result<bool>
 where
     I: IntoIterator<Item = T>,
@@ -165,9 +207,9 @@ where
                 .long_help(
                     "\
 File to load configuration from. Defaults to:
-- Linux: /home/alice/.config/media-organizer/config.toml
-- Windows: C:\\Users\\Alice\\AppData\\Roaming\\adn\\media-organizer\\config\\config.toml
-- Mac: /Users/Alice/Library/Application Support/dev.adn.media-organizer/config.toml",
+- Linux: /home/ainara/.config/media-organizer/config.toml
+- Windows: C:\\Users\\Ainara\\AppData\\Roaming\\adn\\media-organizer\\config\\config.toml
+- Mac: /Users/Ainara/Library/Application Support/dev.adn.media-organizer/config.toml",
                 )
                 .takes_value(true),
         )
