@@ -26,8 +26,7 @@ impl Iterator for FilesIter {
             return Some(file);
         }
 
-        while !self.dirs.is_empty() {
-            let dir = self.dirs.pop().unwrap();
+        while let Some(dir) = self.dirs.pop() {
             let dir_entries = match fs::read_dir(dir) {
                 Ok(entries) => entries,
                 _ => continue,

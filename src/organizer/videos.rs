@@ -14,13 +14,15 @@ pub struct VideoOrganizer {
 }
 
 impl VideoOrganizer {
-    const SUPPORTED: [&'static str; 1] = ["mp4"];
+    const SUPPORTED: [&'static str; 2] = ["mp4", "avi"];
 
     pub fn new(dst_dir: PathBuf) -> VideoOrganizer {
         VideoOrganizer {
             dst_dir,
-            date_from_filename_regex: Regex::new(r"^(?:VID[-_])?(\d{4})(\d{2})\d{2}[_-].+\.mp4$")
-                .unwrap(),
+            date_from_filename_regex: Regex::new(
+                r"^(?:VID[-_]|PXL[-_])?(\d{4})(\d{2})\d{2}[_-].+\.mp4$",
+            )
+            .unwrap(),
         }
     }
 
@@ -91,7 +93,7 @@ mod tests {
     #[test]
     fn should_not_organize() {
         let organizer = VideoOrganizer::new(PathBuf::new());
-        let extensions = vec!["jpg", "doc", ""];
+        let extensions = ["jpg", "doc", ""];
         for extension in extensions.iter() {
             assert!(!organizer.should_organize(&PathBuf::from(format!("file.{}", extension))));
         }
@@ -109,10 +111,10 @@ mod tests {
             .parent()
             .unwrap()
             .join("fixtures")
-            .join("20200829_205420.mp4");
+            .join("PXL_20200829_205420.TS.mp4");
         let sub_dir = src.path().join("sub_dir");
-        fs::create_dir(&sub_dir).unwrap();
-        fs::copy(&video, src.path().join("20200829_205420.mp4")).unwrap();
+        fs::create_dir(sub_dir).unwrap();
+        fs::copy(&video, src.path().join("PXL_20200829_205420.TS.mp4")).unwrap();
         let video_organizer = VideoOrganizer::new(video_dst);
 
         assert_eq!(

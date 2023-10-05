@@ -37,7 +37,7 @@ impl PhotoOrganizer {
         PhotoOrganizer {
             dst_dir,
             date_from_filename_regex: Regex::new(
-                r"^IMG[-_](\d{4})(\d{2})\d{2}[-_](WA)?\d+\.(jpeg|jpg|JPG)$",
+                r"^(?:IMG[-_])?(\d{4})(\d{2})\d{2}[-_](?:WA)?\d+\.(jpeg|jpg|JPG)$",
             )
             .unwrap(),
         }
@@ -142,7 +142,7 @@ mod tests {
     #[test]
     fn should_not_organize() {
         let organizer = PhotoOrganizer::new(PathBuf::new());
-        let extensions = vec!["mp4", "doc", ""];
+        let extensions = ["mp4", "doc", ""];
         for extension in extensions.iter() {
             assert!(!organizer.should_organize(&PathBuf::from(format!("file.{}", extension))));
         }

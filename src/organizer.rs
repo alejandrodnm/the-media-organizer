@@ -73,7 +73,7 @@ impl Organizer {
 
     fn move_file(file: &Path, dst_dir: &Path) -> Result<()> {
         if !dst_dir.is_dir() {
-            fs::create_dir_all(&dst_dir).wrap_err("failed to create destination dir")?;
+            fs::create_dir_all(dst_dir).wrap_err("failed to create destination dir")?;
         }
 
         let file_name = match file.file_name() {
