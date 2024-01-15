@@ -1,6 +1,6 @@
 [package]
 name = "the-media-organizer"
-version = "1.0.0"
+version = "1.1.0"
 authors = ["Alejandro Do Nascimento Mora"]
 edition = "2021"
 license = "MIT"
